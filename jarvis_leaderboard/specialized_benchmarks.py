@@ -16,6 +16,7 @@ def process_benchmarks(
     height=800,
     desired_order=None,
     add_links=True,
+    showscale=True,
 ):
     mem = {}
     # Collect contributions
@@ -55,7 +56,7 @@ def process_benchmarks(
             metric = temp[-1]
 
             md_filename = (
-                "https://pages.nist.gov/jarvis_leaderboard/"
+                "https://atomgptlab.github.io/jarvis_leaderboard/"
                 # "../docs/"
                 + category
                 # + method
@@ -126,7 +127,8 @@ def process_benchmarks(
     # print('df_reordered',df_reordered)
     # Plot and save
     fig = px.imshow(df_reordered, text_auto=True)
-    fig.update_layout(width=width, height=height)
+    fig.update_layout(width=width, height=height,coloraxis_showscale=showscale)
+    #fig.update_traces(showscale=False)
     save_md(fig=fig, md_path=md_path, detailed_links=detailed_links)
 
 
@@ -209,6 +211,24 @@ if __name__ == "__main__":
         "AI-SinglePropertyPrediction-slme-dft_3d-test-mae.csv.zip",
         "AI-SinglePropertyPrediction-spillage-dft_3d-test-mae.csv.zip",
     ]
+    # inverse_atom_benchmarks = [
+    #    "AI-AtomGen-Tc_supercon-dft_3d-test-rmse.csv.zip",
+    #    "AI-AtomGen-Tc-alex_supercon-test-rmse.csv.zip",
+    # ]
+    inverse_atom_benchmarks = [
+        "AI-AtomGen-Tc_a-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_alpha-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_b-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_beta-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_c-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_gamma-alex_supercon-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_a-dft_3d-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_alpha-dft_3d-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_b-dft_3d-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_beta-dft_3d-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_c-dft_3d-test-mae.csv.zip",
+        "AI-AtomGen-Tc_supercon_gamma-dft_3d-test-mae.csv.zip",
+    ]
     prop_pred_benchmarks_more = [
         "AI-SinglePropertyPrediction-avg_elec_mass-dft_3d-test-mae.csv.zip",
         "AI-SinglePropertyPrediction-avg_hole_mass-dft_3d-test-mae.csv.zip",
@@ -278,4 +298,17 @@ if __name__ == "__main__":
         metric="pearsonr",
         replacements=["AI-SinglePropertyPrediction-", "-test-mae.csv.zip"],
         md_path="PropertyPrediction.md",
+    )
+    process_benchmarks(
+        benchmarks=inverse_atom_benchmarks,
+        metric="pearsonr",
+        replacements=[
+            "AI-AtomGen-",
+            "-test-mae.csv.zip",
+            "-test-rmse.csv.zip",
+        ],
+        showscale=False,
+        md_path="AtomGenBench.md",
+        width=1200,
+        height=500,
     )

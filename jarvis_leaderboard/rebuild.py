@@ -13,6 +13,7 @@ import requests
 from jarvis.io.vasp.inputs import Poscar
 import plotly.graph_objects as go
 from scipy import stats
+from tqdm import tqdm
 
 # from mkdocs import utils
 
@@ -243,7 +244,7 @@ def get_metric_value(
     plot_filename=None,
     metric=None,
 ):
-    print("csv path is: ", csv_path)
+    # print("csv path is: ", csv_path)
     fname = csv_path.split("/")[-1].split(".csv.zip")[0]
     contribution = csv_path.split("/")[-2]
     temp = fname.split("-")
@@ -322,9 +323,9 @@ def get_metric_value(
         errors.append([csv_path, len(csv_data), len(actual_df)])
 
     df = pd.merge(csv_data, actual_df, on="id")
-    print("csv", csv_path)
-    print("df", df)
-    print("actual_df", actual_df)
+    # print("csv", csv_path)
+    # print("df", df)
+    # print("actual_df", actual_df)
     # print('csv_data',csv_data)
     # print('actual_df',actual_df)
     results["res"] = "na"
@@ -906,281 +907,283 @@ def rebuild_pages(
     unique_fname = []
     os.chdir(root_dir + "/..")
     num_data = 0
+    all_zips = []
     for i in glob.glob("jarvis_leaderboard/contributions/*/*.csv.zip"):
-            # if "AtomGen" in i:
-            bnch_tmp = i.split("/")[-1]
-            if bnch_tmp not in exclude_benchs:
-                # for i in glob.glob("jarvis_leaderboard/benchmarks/*/*.csv.zip"):
-                # if 'Text' in i:
-                print(i)
-                fname = bnch_tmp.split(".csv.zip")[0]
-                ###fname = i.split("/")[-1].split(".csv.zip")[0]
-                temp = fname.split("-")
-                submod = temp[1]
-                data_split = temp[4]
-                prop = temp[2]
-                dataset = temp[3]
-                method = temp[0]
-                metric = temp[-1]
-                # print ('metric',metric)
-                # print ('dataset',dataset)
-                team = i.split("/")[-2]
-                md_filename = (
-                    "../docs/" + method + "/" + submod + "/" + prop + ".md"
-                )
-                md_filename = (
-                    "../docs/"
-                    + method
-                    + "/"
-                    + submod
-                    + "/"
-                    + dataset
-                    + "_"
-                    + prop
-                    + ".md"
-                )
-                # print ('md_filename',md_filename)
-                md_path = os.path.join(root_dir, md_filename)
-                # print(
-                #    fname,
-                #    data_split,
-                #    prop,
-                #    dataset,
-                #    method,
-                #    metric,
-                #    team,
-                #    md_filename,
-                #    md_path,
-                # )
-                with open(md_path, "r") as file:
-                    filedata = file.read().splitlines()
-                content = []
-                for j in filedata:
-                    if "<!--table_content-->" in j:
-                        content.append("<!--table_content-->")
-                    elif "<!--benchmark_description-->" in j:
-                        content.append("<!--benchmark_description-->")
-                    else:
-                        content.append(j)
-                with open(md_path, "w") as file:
-                    file.write("\n".join(content))
-            if debug_one:
-                break
+        all_zips.append(i)
+    for i in tqdm(all_zips, total=len(all_zips)):
+        # if "AtomGen" in i:
+        bnch_tmp = i.split("/")[-1]
+        if bnch_tmp not in exclude_benchs:
+            # for i in glob.glob("jarvis_leaderboard/benchmarks/*/*.csv.zip"):
+            # if 'Text' in i:
+            print(i)
+            fname = bnch_tmp.split(".csv.zip")[0]
+            ###fname = i.split("/")[-1].split(".csv.zip")[0]
+            temp = fname.split("-")
+            submod = temp[1]
+            data_split = temp[4]
+            prop = temp[2]
+            dataset = temp[3]
+            method = temp[0]
+            metric = temp[-1]
+            # print ('metric',metric)
+            # print ('dataset',dataset)
+            team = i.split("/")[-2]
+            md_filename = (
+                "../docs/" + method + "/" + submod + "/" + prop + ".md"
+            )
+            md_filename = (
+                "../docs/"
+                + method
+                + "/"
+                + submod
+                + "/"
+                + dataset
+                + "_"
+                + prop
+                + ".md"
+            )
+            # print ('md_filename',md_filename)
+            md_path = os.path.join(root_dir, md_filename)
+            # print(
+            #    fname,
+            #    data_split,
+            #    prop,
+            #    dataset,
+            #    method,
+            #    metric,
+            #    team,
+            #    md_filename,
+            #    md_path,
+            # )
+            with open(md_path, "r") as file:
+                filedata = file.read().splitlines()
+            content = []
+            for j in filedata:
+                if "<!--table_content-->" in j:
+                    content.append("<!--table_content-->")
+                elif "<!--benchmark_description-->" in j:
+                    content.append("<!--benchmark_description-->")
+                else:
+                    content.append(j)
+            with open(md_path, "w") as file:
+                file.write("\n".join(content))
+        if debug_one:
+            break
     # jarvis_leaderboard/dataset/AI/dft_3d_exfoliation_energy.json
     dat = []
     md_files = []
-    for i in glob.glob("jarvis_leaderboard/contributions/*/*.csv.zip"):
-            #if "AtomGen" in i:
-            bnch_tmp = i.split("/")[-1]
-            if bnch_tmp not in exclude_benchs:
-                # for i in glob.glob("jarvis_leaderboard/benchmarks/*/*.csv.zip"):
-                print(i)
-                fname = bnch_tmp.split(".csv.zip")[0]
-                ###fname = i.split("/")[-1].split(".csv.zip")[0]
-                bench_name = i.split("/")[-2]
-                temp = fname.split(
-                    "-"
-                )  # ['SinglePropertyPrediction', 'test', 'bandgap', 'dft_3d_JVASP_1002_Si', 'ES', 'mae']
-                # submod = temp[0]
-                # data_split = temp[1]
-                # prop = temp[2]
-                # dataset = temp[3]
-                # method = temp[4]
-                # metric = temp[5]
-                # method = temp[-2]
-                # metric = temp[-1]
+    # for i in glob.glob("jarvis_leaderboard/contributions/*/*.csv.zip"):
+    for i in tqdm(all_zips, total=len(all_zips)):
+        # if "AtomGen" in i:
+        bnch_tmp = i.split("/")[-1]
+        if bnch_tmp not in exclude_benchs:
+            # for i in glob.glob("jarvis_leaderboard/benchmarks/*/*.csv.zip"):
+            print(i)
+            fname = bnch_tmp.split(".csv.zip")[0]
+            ###fname = i.split("/")[-1].split(".csv.zip")[0]
+            bench_name = i.split("/")[-2]
+            temp = fname.split(
+                "-"
+            )  # ['SinglePropertyPrediction', 'test', 'bandgap', 'dft_3d_JVASP_1002_Si', 'ES', 'mae']
+            # submod = temp[0]
+            # data_split = temp[1]
+            # prop = temp[2]
+            # dataset = temp[3]
+            # method = temp[4]
+            # metric = temp[5]
+            # method = temp[-2]
+            # metric = temp[-1]
 
-                category = temp[0]
-                # method = temp[0]
-                subcat = temp[1]
-                # submod = temp[1]
-                data_split = temp[4]
-                prop = temp[2]
-                dataset = temp[3]
-                metric = temp[-1]
+            category = temp[0]
+            # method = temp[0]
+            subcat = temp[1]
+            # submod = temp[1]
+            data_split = temp[4]
+            prop = temp[2]
+            dataset = temp[3]
+            metric = temp[-1]
 
-                team = i.split("/")[-2]
-                md_filename = (
-                    "../docs/" + category + "/" + subcat + "/" + prop + ".md"
-                )
-                # md_filename = "../docs/" + method + "/" + submod + "/" + prop + ".md"
-                md_filename = (
-                    "../docs/"
-                    + category
-                    # + method
-                    + "/"
-                    + subcat
-                    # + submod
-                    + "/"
-                    + dataset
-                    + "_"
-                    + prop
-                    + ".md"
-                )
-                md_path = os.path.join(root_dir, md_filename)
-                md_files.append(md_path)
-                notes = ""
-                notes = (
+            team = i.split("/")[-2]
+            md_filename = (
+                "../docs/" + category + "/" + subcat + "/" + prop + ".md"
+            )
+            # md_filename = "../docs/" + method + "/" + submod + "/" + prop + ".md"
+            md_filename = (
+                "../docs/"
+                + category
+                # + method
+                + "/"
+                + subcat
+                # + submod
+                + "/"
+                + dataset
+                + "_"
+                + prop
+                + ".md"
+            )
+            md_path = os.path.join(root_dir, md_filename)
+            md_files.append(md_path)
+            notes = ""
+            notes = (
+                '<a href="'
+                + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
+                + i
+                + '" target="_blank">CSV</a>'
+            )
+            json_name = dataset + "_" + prop + ".json.zip"
+            json_path = category + "/" + subcat + "/" + json_name
+            # json_path = method + "/" + submod + "/" + json_name
+            json_url = (
+                '<a href="'
+                + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/jarvis_leaderboard/benchmarks/"
+                # + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/jarvis_leaderboard/dataset/"
+                + json_path
+                + '" target="_blank">JSON</a>'
+            )
+            metadata = (
+                '<a href="'
+                + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
+                + "jarvis_leaderboard/contributions/"
+                # + "jarvis_leaderboard/benchmarks/"
+                + bench_name
+                + "/metadata.json "
+                + '" target="_blank">Info</a>'
+            )
+            runsh = (
+                '<a href="'
+                + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
+                + "jarvis_leaderboard/contributions/"
+                # + "jarvis_leaderboard/benchmarks/"
+                + bench_name
+                + "/run.sh "
+                + '" target="_blank">run.sh</a>'
+            )
+            notes = notes + ", " + json_url + ", " + runsh + ", " + metadata
+            if "JVASP" in prop:
+                jid = "JVASP-" + prop.split("JVASP_")[1].split("_")[0]
+                # print("propjid", prop, jid)
+                jid_url = (
                     '<a href="'
-                    + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
-                    + i
-                    + '" target="_blank">CSV</a>'
-                )
-                json_name = dataset + "_" + prop + ".json.zip"
-                json_path = category + "/" + subcat + "/" + json_name
-                # json_path = method + "/" + submod + "/" + json_name
-                json_url = (
-                    '<a href="'
-                    + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/jarvis_leaderboard/benchmarks/"
-                    # + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/jarvis_leaderboard/dataset/"
-                    + json_path
-                    + '" target="_blank">JSON</a>'
-                )
-                metadata = (
-                    '<a href="'
-                    + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
-                    + "jarvis_leaderboard/contributions/"
-                    # + "jarvis_leaderboard/benchmarks/"
-                    + bench_name
-                    + "/metadata.json "
-                    + '" target="_blank">Info</a>'
-                )
-                runsh = (
-                    '<a href="'
-                    + "https://github.com/atomgptlab/jarvis_leaderboard/tree/main/"
-                    + "jarvis_leaderboard/contributions/"
-                    # + "jarvis_leaderboard/benchmarks/"
-                    + bench_name
-                    + "/run.sh "
-                    + '" target="_blank">run.sh</a>'
-                )
-                notes = (
-                    notes + ", " + json_url + ", " + runsh + ", " + metadata
-                )
-                if "JVASP" in prop:
-                    jid = "JVASP-" + prop.split("JVASP_")[1].split("_")[0]
-                    # print("propjid", prop, jid)
-                    jid_url = (
-                        '<a href="'
-                        + "https://www.ctcms.nist.gov/~knc6/static/JARVIS-DFT/"
-                        + jid
-                        + ".xml "
-                        + '" target="_blank">'
-                        + jid
-                        + "</a>"
-                    )
-                    notes += ", " + jid_url
-
-                # print ('bench_name', bench_name)
-                # print(
-                #    fname,
-                #    data_split,
-                #    prop,
-                #    dataset,
-                #    method,
-                #    metric,
-                #    team,
-                #    md_filename,
-                #    md_path,
-                # )
-                with open(md_path, "r") as file:
-                    filedata = file.read().splitlines()
-                # print("names", i)
-                # print()
-                res = get_metric_value(
-                    # submod=submod,
-                    csv_path=i,
-                    # dataset=dataset,
-                    # prop=prop,
-                    # data_split=data_split,
-                    # method=method,
-                    # metric=metric,
-                    # bench_name=bench_name,
-                )
-                # print ('res',res)
-                if fname not in unique_fname:
-                    unique_fname.append(fname)
-                    num_data += res["dataset_size"]
-                # num_data+=res['dataset_size']
-                # num_data+=res['num_entries']
-                print(
-                    "num_data",
-                    i,
-                    num_data,
-                    res["dataset_size"],
-                    res["num_entries"],
-                )
-                # res = 5
-                # if clean:
-
-                team = (
-                    '<a href="'
-                    + res["github_url"]
+                    + "https://www.ctcms.nist.gov/~knc6/static/JARVIS-DFT/"
+                    + jid
+                    + ".xml "
                     + '" target="_blank">'
-                    + team
+                    + jid
                     + "</a>"
-                    # '<a href="' + res["project_url"] + '" target="_blank">' + team + "</a>"
                 )
-                # team='['+team+']'+'('+res['project_url']+')'
-                info = {}
-                temp = (
-                    "<!--table_content-->"
-                    + "<tr>"
-                    + "<td>"
-                    + team
-                    + "</td>"
-                    + "<td>"
-                    + dataset
-                    + "</td>"
-                    # + "<td>"
-                    # + method
-                    # + "</td>"
-                    + "<td>"
-                    + str(res["res"])
-                    + "</td>"
-                    # + "<td>"
-                    # + str(res['model_name'])
-                    # + "</td>"
-                    + "<td>"
-                    + str(res["team_name"])
-                    + "</td>"
-                    + "<td>"
-                    + str(res["dataset_size"])
-                    + "</td>"
-                    + "<td>"
-                    + str(res["date_submitted"])
-                    + "</td>"
-                    + "<td>"
-                    + str(notes)
-                    + "</td>"
-                    + "</tr>"
-                )
-                info["team"] = team
-                info["result"] = res
-                dat.append(info)
-                content = []
-                for j in filedata:
-                    if "<!--table_content-->" in j:
-                        temp = temp + j
-                        content.append(temp)
-                    elif "<!--benchmark_description-->" in j:
-                        bench_desc = get_benchmark_description(fname)
-                        temp2 = (
-                            "<!--benchmark_description--> - Description: "
-                            + str(bench_desc)
-                            # + str(num_data)
-                            # + str(len(dat))
-                            # + "\n"
-                        )
-                        content.append(temp2)
-                    else:
-                        content.append(j)
-                # filedata = filedata.replace('<!--table_content-->', temp)
+                notes += ", " + jid_url
 
-                with open(md_path, "w") as file:
-                    file.write("\n".join(content))
-            if debug_one:
-                break
+            # print ('bench_name', bench_name)
+            # print(
+            #    fname,
+            #    data_split,
+            #    prop,
+            #    dataset,
+            #    method,
+            #    metric,
+            #    team,
+            #    md_filename,
+            #    md_path,
+            # )
+            with open(md_path, "r") as file:
+                filedata = file.read().splitlines()
+            # print("names", i)
+            # print()
+            res = get_metric_value(
+                # submod=submod,
+                csv_path=i,
+                # dataset=dataset,
+                # prop=prop,
+                # data_split=data_split,
+                # method=method,
+                # metric=metric,
+                # bench_name=bench_name,
+            )
+            # print ('res',res)
+            if fname not in unique_fname:
+                unique_fname.append(fname)
+                num_data += res["dataset_size"]
+            # num_data+=res['dataset_size']
+            # num_data+=res['num_entries']
+            print(
+                "num_data",
+                i,
+                num_data,
+                res["dataset_size"],
+                res["num_entries"],
+            )
+            # res = 5
+            # if clean:
+
+            team = (
+                '<a href="'
+                + res["github_url"]
+                + '" target="_blank">'
+                + team
+                + "</a>"
+                # '<a href="' + res["project_url"] + '" target="_blank">' + team + "</a>"
+            )
+            # team='['+team+']'+'('+res['project_url']+')'
+            info = {}
+            temp = (
+                "<!--table_content-->"
+                + "<tr>"
+                + "<td>"
+                + team
+                + "</td>"
+                + "<td>"
+                + dataset
+                + "</td>"
+                # + "<td>"
+                # + method
+                # + "</td>"
+                + "<td>"
+                + str(res["res"])
+                + "</td>"
+                # + "<td>"
+                # + str(res['model_name'])
+                # + "</td>"
+                + "<td>"
+                + str(res["team_name"])
+                + "</td>"
+                + "<td>"
+                + str(res["dataset_size"])
+                + "</td>"
+                + "<td>"
+                + str(res["date_submitted"])
+                + "</td>"
+                + "<td>"
+                + str(notes)
+                + "</td>"
+                + "</tr>"
+            )
+            info["team"] = team
+            info["result"] = res
+            dat.append(info)
+            content = []
+            for j in filedata:
+                if "<!--table_content-->" in j:
+                    temp = temp + j
+                    content.append(temp)
+                elif "<!--benchmark_description-->" in j:
+                    bench_desc = get_benchmark_description(fname)
+                    temp2 = (
+                        "<!--benchmark_description--> - Description: "
+                        + str(bench_desc)
+                        # + str(num_data)
+                        # + str(len(dat))
+                        # + "\n"
+                    )
+                    content.append(temp2)
+                else:
+                    content.append(j)
+            # filedata = filedata.replace('<!--table_content-->', temp)
+
+            with open(md_path, "w") as file:
+                file.write("\n".join(content))
+        if debug_one:
+            break
     # print("dat", dat)
     print("mdfiles", len(set(md_files)))
     print("exclude_benchs", len(exclude_benchs))

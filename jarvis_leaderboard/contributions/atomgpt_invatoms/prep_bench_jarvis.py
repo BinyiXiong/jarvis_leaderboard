@@ -14,9 +14,10 @@ for ii,i in df.iterrows():
   mem[i.id]=i.target
   test_ids.append(i.id)
 for i in d:
-    if i['jid'] not in test_ids:
+    if i['jid'] not in test_ids and i['Tc_supercon']!='na':
         train_mem[i['jid']]=Poscar(Atoms.from_dict(i['atoms'])).to_string().replace("\n","\\n")
 info={}
 info['test']=mem
 info['train']=train_mem
+print('train',len(train_mem))
 dumpjson(data=info,filename='dft_3d_Tc_supercon.json')
